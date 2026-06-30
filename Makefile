@@ -7,4 +7,4 @@ gen-go:
 	cd gen/go && go build ./... && go vet ./... && go test ./...
 
 gen-ts:
-	@echo "see Task 5: TS codegen not yet wired"
+	pnpm exec lex gen-api --yes gen/ts lexicons/blue/chum/**/*.json

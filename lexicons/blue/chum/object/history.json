@@ -21,20 +21,22 @@
           "properties": {
             "records": {
               "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["cid", "recordCid", "did", "timestamp"],
-                "properties": {
-                  "cid": { "type": "string" },
-                  "prev": { "type": "string" },
-                  "recordCid": { "type": "string" },
-                  "did": { "type": "string" },
-                  "timestamp": { "type": "string" }
-                }
-              }
+              "items": { "type": "ref", "ref": "#historyEntry" }
             }
           }
         }
+      }
+    },
+    "historyEntry": {
+      "type": "object",
+      "description": "One mutation record in the history chain.",
+      "required": ["cid", "recordCid", "did", "timestamp"],
+      "properties": {
+        "cid": { "type": "string" },
+        "prev": { "type": "string" },
+        "recordCid": { "type": "string" },
+        "did": { "type": "string" },
+        "timestamp": { "type": "string" }
       }
     }
   }
