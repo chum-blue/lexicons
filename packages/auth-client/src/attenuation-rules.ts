@@ -49,6 +49,9 @@ export function isAttenuation(
   if (child.iss !== parent.aud) return false
 
   // Invariant 2: monotonic expiry — child cannot outlive parent
+  // Fail closed: an unparseable date must be rejected, not silently treated as a pass.
+  // NaN > x is false in JS, so without this guard a malformed date would bypass the check.
+  if (Number.isNaN(Date.parse(child.expiresAt)) || Number.isNaN(Date.parse(parent.expiresAt))) return false
   if (new Date(child.expiresAt) > new Date(parent.expiresAt)) return false
 
   // Invariant 1: monotonic attenuation — every child scope entry must be covered

@@ -119,4 +119,26 @@ describe('isAttenuation — §4 invariants', () => {
     ], EXPIRY_FAR)
     expect(isAttenuation(parent, child)).toBe(false)
   })
+
+  // ── MALFORMED DATE GUARD (fail-closed) ────────────────────────────────────
+
+  it('false: child.expiresAt is unparseable (must fail closed, not pass)', () => {
+    // Pre-fix: NaN > x is false → the expiry check was silently bypassed → returned true
+    // Post-fix: unparseable date is explicitly rejected → returns false
+    const child = cap(BOB, CAROL, [
+      { bucket: 'photos', keyPrefix: 'vacation/', can: ['read'] },
+    ], 'not-a-date')
+    expect(isAttenuation(parent, child)).toBe(false)
+  })
+
+  it('false: parent.expiresAt is unparseable (must fail closed, not pass)', () => {
+    // Same fail-open risk applies when the parent date is malformed
+    const malformedParent = cap(ALICE, BOB, [
+      { bucket: 'photos', keyPrefix: 'vacation/', can: ['read', 'write'] },
+    ], 'garbage')
+    const child = cap(BOB, CAROL, [
+      { bucket: 'photos', keyPrefix: 'vacation/', can: ['read'] },
+    ], EXPIRY_NEAR)
+    expect(isAttenuation(malformedParent, child)).toBe(false)
+  })
 })
