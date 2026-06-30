@@ -46,7 +46,9 @@ export async function mintCapability(
     ...(prev !== undefined ? { prev: prev as unknown as import('multiformats/cid').CID } : {}),
   }
 
-  // Detached signature: sign canonical bytes; the sig is for the store/transport.
+  // Placeholder signing input: JSON.stringify(record). NOT canonical DAG-CBOR — chumd verifies over
+  // canonical DAG-CBOR (object.UnsignedBytes), so these signatures are not yet server-verifiable.
+  // Canonical encoding lands in SP-4c (the OAuth mint flow).
   // The record itself carries no sig field (same convention as blue.chum.pointer.record).
   const bytes = new TextEncoder().encode(JSON.stringify(record))
   await signer(bytes)

@@ -24,7 +24,9 @@ export async function revoke(
     ...(reason !== undefined ? { reason } : {}),
   }
 
-  // Detached signature
+  // Placeholder signing input: JSON.stringify(record). NOT canonical DAG-CBOR — chumd verifies over
+  // canonical DAG-CBOR (object.UnsignedBytes), so these signatures are not yet server-verifiable.
+  // Canonical encoding lands in SP-4c (the OAuth mint flow).
   const bytes = new TextEncoder().encode(JSON.stringify(record))
   await ctx.signer(bytes)
 

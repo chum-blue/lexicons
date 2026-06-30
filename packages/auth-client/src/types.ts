@@ -4,7 +4,8 @@ import type { CapabilityView } from '../../../gen/ts/types/blue/chum/auth/listCa
 
 export type { CapabilityRecord, RevocationRecord, CapabilityView, CapabilityScope }
 
-/** Signs canonical bytes; returns signature bytes (detached — not stored in the lexicon record). */
+/** Signs the given bytes; returns signature bytes (detached — not stored in the lexicon record).
+ *  (The auth-client currently passes a JSON placeholder; canonical DAG-CBOR encoding is SP-4c.) */
 export type Signer = (bytes: Uint8Array) => Promise<Uint8Array>
 
 export interface ListParams {
