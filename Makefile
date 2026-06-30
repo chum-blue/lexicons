@@ -4,7 +4,7 @@ validate:
 	pnpm test
 
 gen-go:
-	@echo "see Task 3: Go codegen not yet wired"
+	cd gen/go && go build ./... && go vet ./... && go test ./...
 
 gen-ts:
 	@echo "see Task 5: TS codegen not yet wired"
