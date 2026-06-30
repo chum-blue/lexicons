@@ -1,0 +1,20 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.auth.revocation",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "description": "Revokes the referenced capability. Signed (detached) by a DID in the capability's issuer chain (the issuer or any ancestor issuer). Authority to revoke is verified in SP-4b against the chain; the lexicon only carries the reference.",
+      "record": {
+        "type": "object",
+        "required": ["capability", "createdAt"],
+        "properties": {
+          "capability": { "type": "cid-link", "description": "CID of the blue.chum.auth.capability being revoked." },
+          "reason": { "type": "string" },
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    }
+  }
+}

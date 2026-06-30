@@ -1,0 +1,44 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.auth.listCapabilities",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "List capabilities by issuer or audience DID.",
+      "parameters": {
+        "type": "params",
+        "required": ["did"],
+        "properties": {
+          "did": { "type": "string", "format": "did" },
+          "role": { "type": "string", "knownValues": ["issuer", "audience"], "default": "audience" },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 },
+          "cursor": { "type": "string" }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["capabilities"],
+          "properties": {
+            "cursor": { "type": "string" },
+            "capabilities": {
+              "type": "array",
+              "items": { "type": "ref", "ref": "#capabilityView" }
+            }
+          }
+        }
+      }
+    },
+    "capabilityView": {
+      "type": "object",
+      "required": ["uri", "cid", "value"],
+      "properties": {
+        "uri": { "type": "string", "format": "at-uri" },
+        "cid": { "type": "string", "format": "cid" },
+        "revoked": { "type": "boolean" },
+        "value": { "type": "ref", "ref": "blue.chum.auth.capability" }
+      }
+    }
+  }
+}

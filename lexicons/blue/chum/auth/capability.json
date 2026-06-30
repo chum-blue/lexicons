@@ -1,0 +1,44 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.auth.capability",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "description": "A signed capability delegation. The issuer (iss) grants the audience (aud) the attenuated scope until expiresAt. The record's canonical DAG-CBOR is signed by the issuer's did:key via the Signer seam (detached signature, as with blue.chum.pointer.record). prev links the parent capability when this record attenuates an existing delegation chain.",
+      "record": {
+        "type": "object",
+        "required": ["iss", "aud", "scope", "expiresAt", "nonce", "createdAt"],
+        "properties": {
+          "iss": { "type": "string", "format": "did", "description": "Issuer/owner DID; signs this record." },
+          "aud": { "type": "string", "format": "did", "description": "Delegate DID this capability is granted to." },
+          "scope": {
+            "type": "array",
+            "minLength": 1,
+            "items": { "type": "ref", "ref": "#capabilityScope" },
+            "description": "One or more attenuations. Authority is the union of the entries."
+          },
+          "prev": { "type": "cid-link", "description": "Parent capability CID; null/absent at the chain root." },
+          "notBefore": { "type": "string", "format": "datetime" },
+          "expiresAt": { "type": "string", "format": "datetime" },
+          "nonce": { "type": "string", "minLength": 1, "description": "Distinguishes otherwise-identical grants so each has a distinct CID." },
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    },
+    "capabilityScope": {
+      "type": "object",
+      "description": "A UCAN-style with/can attenuation: the abilities (can) granted over a resource (bucket, optionally narrowed by keyPrefix).",
+      "required": ["bucket", "can"],
+      "properties": {
+        "bucket": { "type": "string" },
+        "keyPrefix": { "type": "string", "description": "Absent/empty = whole bucket; otherwise restricts to keys under this prefix." },
+        "can": {
+          "type": "array",
+          "minLength": 1,
+          "items": { "type": "string", "knownValues": ["read", "write", "delete"] }
+        }
+      }
+    }
+  }
+}
