@@ -1,0 +1,5 @@
+{
+  "parent": {"iss":"did:plc:alice","aud":"did:plc:bob","scope":[{"bucket":"photos","keyPrefix":"vacation/","can":["read","write"]},{"bucket":"docs","can":["read"]}],"expiresAt":"2030-01-01T00:00:00Z","nonce":"np5","createdAt":"2026-06-30T00:00:00Z"},
+  "child":  {"iss":"did:plc:bob","aud":"did:plc:carol","scope":[{"bucket":"photos","keyPrefix":"vacation/2024/","can":["read"]},{"bucket":"docs","can":["read"]}],"expiresAt":"2028-01-01T00:00:00Z","nonce":"nc5","createdAt":"2026-06-30T00:00:00Z"},
+  "note": "valid: multiple child scope entries all covered by parent"
+}

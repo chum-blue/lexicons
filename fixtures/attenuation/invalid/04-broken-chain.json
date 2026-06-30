@@ -1,0 +1,5 @@
+{
+  "parent": {"iss":"did:plc:alice","aud":"did:plc:bob","scope":[{"bucket":"photos","keyPrefix":"vacation/","can":["read"]}],"expiresAt":"2030-01-01T00:00:00Z","nonce":"np4","createdAt":"2026-06-30T00:00:00Z"},
+  "child":  {"iss":"did:plc:carol","aud":"did:plc:dave","scope":[{"bucket":"photos","keyPrefix":"vacation/","can":["read"]}],"expiresAt":"2030-01-01T00:00:00Z","nonce":"nc4","createdAt":"2026-06-30T00:00:00Z"},
+  "note": "invalid: child.iss (carol) != parent.aud (bob) — broken chain continuity"
+}

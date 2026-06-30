@@ -1,0 +1,5 @@
+{
+  "parent": {"iss":"did:plc:alice","aud":"did:plc:bob","scope":[{"bucket":"photos","keyPrefix":"vacation/","can":["read","write"]}],"expiresAt":"2030-01-01T00:00:00Z","nonce":"np1","createdAt":"2026-06-30T00:00:00Z"},
+  "child":  {"iss":"did:plc:bob","aud":"did:plc:carol","scope":[{"bucket":"secrets","can":["read"]}],"expiresAt":"2030-01-01T00:00:00Z","nonce":"nc1","createdAt":"2026-06-30T00:00:00Z"},
+  "note": "invalid: child introduces bucket not in parent (superset scope)"
+}
