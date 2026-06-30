@@ -13,6 +13,8 @@
     "gen/ts/util.ts",
     "gen/ts/lexicons.ts",
     "gen/ts/types/**/*.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "fixtures/**/*.ts",
+    "fixtures/**/*.mts"
   ]
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { loadAttenuationCases } from './loader.js'
+import { loadAttenuationCases } from './loader.mjs'
 
 describe('attenuation fixture corpus', () => {
   it('loads ≥10 cases with valid + invalid', () => {

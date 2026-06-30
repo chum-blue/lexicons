@@ -3,7 +3,7 @@ package chumauth_test
 import (
 	"testing"
 
-	attenfixtures "github.com/chum-blue/lexicons/fixtures/attenuation"
+	attenfixtures "github.com/chum-blue/lexicons/gen/go/attenfixtures"
 	"github.com/chum-blue/lexicons/gen/go/chumauth"
 )
 

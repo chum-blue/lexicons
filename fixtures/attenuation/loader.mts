@@ -2,7 +2,9 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join, dirname, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+// JSON corpus lives in gen/go/attenfixtures/ (the canonical location shared
+// with the Go embed package). Resolve relative to this file's location.
+const __dirname = join(dirname(fileURLToPath(import.meta.url)), '../../gen/go/attenfixtures')
 
 export interface ScopeEntry {
   bucket: string

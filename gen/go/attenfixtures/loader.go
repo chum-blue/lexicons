@@ -1,14 +1,18 @@
-// Package attenuation provides a language-neutral corpus loader for the
-// shared attenuation fixture files used by SP-4b and its TS counterpart.
-package attenuation
+// Package attenfixtures provides a corpus loader for the shared attenuation
+// fixture files used by SP-4b and language-neutral tests. The JSON files are
+// embedded at compile time so external consumers (installed via the module
+// cache) work without access to the original source tree.
+package attenfixtures
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-	"runtime"
+	"io/fs"
 )
+
+//go:embed valid/*.json invalid/*.json
+var corpus embed.FS
 
 // ScopeJSON mirrors a single scope entry from the fixture JSON files.
 type ScopeJSON struct {
@@ -37,50 +41,44 @@ type Case struct {
 	Filename string
 }
 
-// fixtureDir returns the absolute path to the fixtures/attenuation directory,
-// resolved relative to this source file so the caller's cwd is irrelevant.
-func fixtureDir() string {
-	_, file, _, _ := runtime.Caller(0)
-	return filepath.Dir(file)
-}
-
 type caseFile struct {
 	Parent CapabilityJSON `json:"parent"`
 	Child  CapabilityJSON `json:"child"`
 	Note   string         `json:"note"`
 }
 
-// LoadAttenuationCases reads all *.json files from the valid/ and invalid/
-// sub-directories and returns them as a slice of Case values.
+// LoadAttenuationCases reads all *.json files from the embedded valid/ and
+// invalid/ sub-directories and returns them as a slice of Case values.
 func LoadAttenuationCases() ([]Case, error) {
-	root := fixtureDir()
 	var cases []Case
 
 	for _, cat := range []string{"valid", "invalid"} {
-		dir := filepath.Join(root, cat)
-		entries, err := os.ReadDir(dir)
+		entries, err := fs.ReadDir(corpus, cat)
 		if err != nil {
-			return nil, fmt.Errorf("reading %s: %w", dir, err)
+			return nil, fmt.Errorf("reading embedded %s: %w", cat, err)
 		}
 		for _, e := range entries {
-			if e.IsDir() || filepath.Ext(e.Name()) != ".json" {
+			if e.IsDir() {
 				continue
 			}
-			path := filepath.Join(dir, e.Name())
-			data, err := os.ReadFile(path)
+			name := e.Name()
+			if len(name) < 5 || name[len(name)-5:] != ".json" {
+				continue
+			}
+			data, err := corpus.ReadFile(cat + "/" + name)
 			if err != nil {
-				return nil, fmt.Errorf("reading %s: %w", path, err)
+				return nil, fmt.Errorf("reading embedded %s/%s: %w", cat, name, err)
 			}
 			var cf caseFile
 			if err := json.Unmarshal(data, &cf); err != nil {
-				return nil, fmt.Errorf("parsing %s: %w", path, err)
+				return nil, fmt.Errorf("parsing %s/%s: %w", cat, name, err)
 			}
 			cases = append(cases, Case{
 				Parent:   cf.Parent,
 				Child:    cf.Child,
 				Note:     cf.Note,
 				Category: cat,
-				Filename: e.Name(),
+				Filename: name,
 			})
 		}
 	}

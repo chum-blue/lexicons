@@ -3,12 +3,9 @@ module github.com/chum-blue/lexicons/gen/go
 go 1.25.0
 
 require (
-	github.com/chum-blue/lexicons/fixtures/attenuation v0.0.0
 	github.com/fxamacker/cbor/v2 v2.7.0
 	github.com/ipfs/go-cid v0.6.1
 )
-
-replace github.com/chum-blue/lexicons/fixtures/attenuation => ../../fixtures/attenuation
 
 require (
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
