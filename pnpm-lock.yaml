@@ -8,9 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@atproto/api':
-        specifier: ^0.20.23
-        version: 0.20.23
       '@atproto/lex-cli':
         specifier: ^0.10.2
         version: 0.10.2
@@ -33,11 +30,22 @@ importers:
         specifier: ^2.0.5
         version: 2.1.9(@types/node@20.19.43)
 
-packages:
+  packages/auth-client:
+    devDependencies:
+      '@atproto/lexicon':
+        specifier: ^0.4.3
+        version: 0.4.14
+      multiformats:
+        specifier: ^14.0.3
+        version: 14.0.3
+      typescript:
+        specifier: ^5.5.4
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.5
+        version: 2.1.9(@types/node@20.19.43)
 
-  '@atproto/api@0.20.23':
-    resolution: {integrity: sha512-0m484Sm9+Dr+52qgb63ARnq5sjK6DlzuBYnHh9f27jTxpNdY9NzLkejVrb5QZef3gr5mSgL4aRRQ3s4rBP1ZGQ==}
-    engines: {node: '>=22'}
+packages:
 
   '@atproto/common-web@0.4.21':
     resolution: {integrity: sha512-Odq+wdk3YNasGCjjlpl3bCIPvqYHige5DLfMkIffNv/2PI/iIj5ZvAvMvJlJ59OhReKSxtpI0invx5UQPc3+fw==}
@@ -398,9 +406,6 @@ packages:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
 
-  await-lock@3.0.0:
-    resolution: {integrity: sha512-eO6fLiSnrJrMdjWMNK8zbVRXPs2TKJg78iKZd9wDpN3na5tcoV6EoeiOlMgk2QaAQ1gIrK1YuMsJHXWqz89tSA==}
-
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
@@ -583,10 +588,6 @@ packages:
     resolution: {integrity: sha512-n1cw8k1k0x4pgA2+9XrOkFydTerNcJ1zWCO5Nn9scWHTD+5tp8dghT2x1uduQePZTZgd3Tupf+x9BxJjeJi77Q==}
     engines: {node: '>=14.0.0'}
 
-  tlds@1.261.0:
-    resolution: {integrity: sha512-QXqwfEl9ddlGBaRFXIvNKK6OhipSiLXuRuLJX5DErz0o0Q0rYxulWLdFryTkV5PkdZct5iMInwYEGe/eR++1AA==}
-    hasBin: true
-
   ts-morph@24.0.0:
     resolution: {integrity: sha512-2OAOg/Ob5yx9Et7ZX4CvTCc0UFoZHwLEJ+dpDPSUi5TgwwlTlX47w+iFRrEwzUZwYACjq83cgjS/Da50Ga37uw==}
 
@@ -683,17 +684,6 @@ packages:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
 snapshots:
-
-  '@atproto/api@0.20.23':
-    dependencies:
-      '@atproto/common-web': 0.5.2
-      '@atproto/lexicon': 0.7.3
-      '@atproto/syntax': 0.6.3
-      '@atproto/xrpc': 0.8.2
-      await-lock: 3.0.0
-      multiformats: 13.4.2
-      tlds: 1.261.0
-      zod: 3.25.76
 
   '@atproto/common-web@0.4.21':
     dependencies:
@@ -981,8 +971,6 @@ snapshots:
 
   assertion-error@2.0.1: {}
 
-  await-lock@3.0.0: {}
-
   balanced-match@1.0.2: {}
 
   brace-expansion@2.1.1:
@@ -1162,8 +1150,6 @@ snapshots:
   tinyrainbow@1.2.0: {}
 
   tinyspy@3.0.2: {}
-
-  tlds@1.261.0: {}
 
   ts-morph@24.0.0:
     dependencies:
