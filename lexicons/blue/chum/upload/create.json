@@ -1,0 +1,31 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.upload.create",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Open a multipart upload session for a bucket/key. Parts are streamed to the data plane at PUT /uploads/{uploadId}/parts/{n}; upload.complete assembles them into a signed manifest whose CID is the object's Merkle root.",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["bucket", "key"],
+          "properties": {
+            "bucket": { "type": "string" },
+            "key": { "type": "string" },
+            "contentType": { "type": "string" },
+            "visibility": { "type": "string", "enum": ["public", "private"] }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["uploadId"],
+          "properties": { "uploadId": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

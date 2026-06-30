@@ -1,0 +1,18 @@
+{
+  "name": "@chum-blue/lexicons",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Canonical home of blue.chum.* atproto lexicons and generated bindings",
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "vitest run",
+    "gen:ts": "echo 'see Task 5'",
+    "gen:go": "echo 'see Task 3'"
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "^0.10.2",
+    "@atproto/lexicon": "^0.4.3",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}

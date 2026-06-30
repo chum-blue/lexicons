@@ -1,0 +1,29 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.upload.complete",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Assemble an open upload session's ordered parts into a signed manifest and append it to the name's chain as an assembled pointer record. Returns the manifest CID (the object's Merkle root) and the new record CID.",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["uploadId"],
+          "properties": { "uploadId": { "type": "string" } }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["cid", "recordCid"],
+          "properties": {
+            "cid": { "type": "string" },
+            "recordCid": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

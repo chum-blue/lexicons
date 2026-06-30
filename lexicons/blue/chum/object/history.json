@@ -1,0 +1,41 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.object.history",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Return the full signed mutation chain for a name.",
+      "parameters": {
+        "type": "params",
+        "required": ["bucket", "key"],
+        "properties": {
+          "bucket": { "type": "string" },
+          "key": { "type": "string" }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["records"],
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["cid", "recordCid", "did", "timestamp"],
+                "properties": {
+                  "cid": { "type": "string" },
+                  "prev": { "type": "string" },
+                  "recordCid": { "type": "string" },
+                  "did": { "type": "string" },
+                  "timestamp": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

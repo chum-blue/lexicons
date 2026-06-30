@@ -1,0 +1,27 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.pointer.record",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "description": "One link in a name's signed mutation chain. The record's canonical DAG-CBOR bytes are addressed by its RecordCID (CIDv1/dag-cbor/sha-256) and signed by the owner's did:key; prev links to the previous record's RecordCID (null at the chain head).",
+      "record": {
+        "type": "object",
+        "required": ["bucket", "key", "cid", "did", "contentType", "size", "visibility", "tombstone", "createdAt"],
+        "properties": {
+          "bucket": { "type": "string" },
+          "key": { "type": "string" },
+          "cid": { "type": "cid-link" },
+          "prev": { "type": "cid-link" },
+          "did": { "type": "string", "format": "did" },
+          "contentType": { "type": "string" },
+          "size": { "type": "integer" },
+          "visibility": { "type": "string", "enum": ["public", "private"] },
+          "tombstone": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    }
+  }
+}

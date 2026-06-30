@@ -1,0 +1,32 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.object.head",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Resolve a name to current metadata without returning bytes.",
+      "parameters": {
+        "type": "params",
+        "required": ["bucket", "key"],
+        "properties": {
+          "bucket": { "type": "string" },
+          "key": { "type": "string" }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["cid", "recordCid", "size"],
+          "properties": {
+            "cid": { "type": "string" },
+            "recordCid": { "type": "string" },
+            "contentType": { "type": "string" },
+            "size": { "type": "integer" },
+            "visibility": { "type": "string", "enum": ["public", "private"] }
+          }
+        }
+      }
+    }
+  }
+}

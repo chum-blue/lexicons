@@ -1,0 +1,26 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.upload.abort",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Abort an open upload session. The session is marked for reclamation; its parts are reclaimed by the reaper session-sweep when no other object references them. Deletes no bytes directly.",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["uploadId"],
+          "properties": { "uploadId": { "type": "string" } }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["aborted"],
+          "properties": { "aborted": { "type": "boolean" } }
+        }
+      }
+    }
+  }
+}
