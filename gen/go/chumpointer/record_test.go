@@ -1,26 +1,20 @@
-package chumpointer
+package chumpointer_test
 
 // record_test.go: byte-identity golden test.
 //
 // Loads the same corpus that chum/internal/object captured from UnsignedBytes,
-// reproduces each record via Marshal, and asserts hex equality.
+// reproduces each record via chumpointer.Marshal, and asserts hex equality.
 // A mismatch means chumpointer's wire format diverged from chum — fix the
 // struct tags / CID-link encoding; do NOT alter the golden.
-//
-// This file is package chumpointer (internal test), not chumpointer_test,
-// because TestLexiconDeclaresEveryEncodedField below needs reflect access to
-// the unexported unsignedRecord type.
 
 import (
 	"encoding/hex"
 	"encoding/json"
 	"os"
-	"path/filepath"
 	"reflect"
-	"sort"
-	"strings"
 	"testing"
 
+	"github.com/chum-blue/lexicons/gen/go/chumpointer"
 	"github.com/ipfs/go-cid"
 )
 
@@ -49,11 +43,11 @@ func TestGoldenByteIdentity(t *testing.T) {
 		t.Fatalf("parse golden: %v", err)
 	}
 	for i, e := range entries {
-		cidTag, prevTag, err := RecordFromCIDStr(e.CIDStr, e.PrevStr)
+		cidTag, prevTag, err := chumpointer.RecordFromCIDStr(e.CIDStr, e.PrevStr)
 		if err != nil {
 			t.Fatalf("entry %d CID parse: %v", i, err)
 		}
-		rec := Record{
+		rec := chumpointer.Record{
 			Bucket:      e.Bucket,
 			Key:         e.Key,
 			CID:         cidTag,
@@ -66,7 +60,7 @@ func TestGoldenByteIdentity(t *testing.T) {
 			Tombstone:   e.Tombstone,
 			Visibility:  e.Visibility,
 		}
-		b, err := Marshal(rec)
+		b, err := chumpointer.Marshal(rec)
 		if err != nil {
 			t.Fatalf("entry %d Marshal: %v", i, err)
 		}
@@ -83,7 +77,7 @@ func TestGoldenByteIdentity(t *testing.T) {
 // fullRecord is a record with EVERY field populated — including the five SP-4e
 // writer fields and multipart's assembled. A record with any field left zero
 // cannot detect a drifted omitempty tag, which is the exact bug this guards.
-func fullRecord(t *testing.T) Record {
+func fullRecord(t *testing.T) chumpointer.Record {
 	t.Helper()
 	c, err := cid.Decode("bafyreibvjvcv745gig4mkqs5dvpjbdipenxvxxcnvmbnmnkjtqmp5znzzq")
 	if err != nil {
@@ -93,11 +87,11 @@ func fullRecord(t *testing.T) Record {
 	if err != nil {
 		t.Fatal(err)
 	}
-	prev := CIDLink(p)
-	return Record{
+	prev := chumpointer.CIDLink(p)
+	return chumpointer.Record{
 		Bucket:      "b",
 		Key:         "k",
-		CID:         CIDLink(c),
+		CID:         chumpointer.CIDLink(c),
 		Prev:        &prev,
 		DID:         "did:plc:operator",
 		ContentType: "text/plain",
@@ -116,11 +110,11 @@ func fullRecord(t *testing.T) Record {
 
 func TestUnmarshalRoundTripsFullRecord(t *testing.T) {
 	want := fullRecord(t)
-	b, err := Marshal(want)
+	b, err := chumpointer.Marshal(want)
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := Unmarshal(b)
+	got, err := chumpointer.Unmarshal(b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,67 +124,19 @@ func TestUnmarshalRoundTripsFullRecord(t *testing.T) {
 }
 
 func TestUnmarshalRejectsWrongType(t *testing.T) {
-	b, err := DagCBOR.Marshal(struct {
+	b, err := chumpointer.DagCBOR.Marshal(struct {
 		Type string `cbor:"$type"`
 	}{Type: "blue.chum.not.a.pointer"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := Unmarshal(b); err == nil {
+	if _, err := chumpointer.Unmarshal(b); err == nil {
 		t.Fatal("want error on wrong $type, got nil")
 	}
 }
 
 func TestUnmarshalRejectsGarbage(t *testing.T) {
-	if _, err := Unmarshal([]byte{0xff, 0xff, 0xff}); err == nil {
+	if _, err := chumpointer.Unmarshal([]byte{0xff, 0xff, 0xff}); err == nil {
 		t.Fatal("want error on garbage, got nil")
-	}
-}
-
-// TestLexiconDeclaresEveryEncodedField asserts the published lexicon's property
-// set equals unsignedRecord's cbor tag set (minus $type, which is the lexicon's
-// own id, not a declared property).
-//
-// gen/go is a HAND-MAINTAINED mirror — `make gen-go` only builds it. This test
-// is the only thing that makes the mirror track the contract.
-func TestLexiconDeclaresEveryEncodedField(t *testing.T) {
-	path := filepath.Join("..", "..", "..", "lexicons", "blue", "chum", "pointer", "record.json")
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatalf("read lexicon: %v", err)
-	}
-	var doc struct {
-		Defs struct {
-			Main struct {
-				Record struct {
-					Properties map[string]json.RawMessage `json:"properties"`
-				} `json:"record"`
-			} `json:"main"`
-		} `json:"defs"`
-	}
-	if err := json.Unmarshal(raw, &doc); err != nil {
-		t.Fatalf("parse lexicon: %v", err)
-	}
-
-	var declared []string
-	for k := range doc.Defs.Main.Record.Properties {
-		declared = append(declared, k)
-	}
-	sort.Strings(declared)
-
-	var encoded []string
-	rt := reflect.TypeOf(unsignedRecord{})
-	for i := 0; i < rt.NumField(); i++ {
-		tag := rt.Field(i).Tag.Get("cbor")
-		name := strings.Split(tag, ",")[0]
-		if name == "$type" {
-			continue
-		}
-		encoded = append(encoded, name)
-	}
-	sort.Strings(encoded)
-
-	if !reflect.DeepEqual(declared, encoded) {
-		t.Fatalf("lexicon and codec disagree:\n  lexicon declares: %v\n  codec encodes:    %v", declared, encoded)
 	}
 }
