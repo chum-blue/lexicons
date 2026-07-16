@@ -287,7 +287,7 @@ export const schemaDict = {
       historyEntry: {
         type: 'object',
         description:
-          "One record in the chain, as proof material. unsignedBytes is the record's canonical DAG-CBOR preimage — the exact bytes recordCid addresses and sig commits to — and is the ONLY trust input: a verifier hashes it to check recordCid, verifies sig over it, and DECODES it for every other field (cid, prev, did, timestamp, tier, writerDid, ...). Those fields are deliberately not sent alongside the bytes, because a field sent twice is a field that can disagree with itself.",
+          "One record in the chain, as proof material. unsignedBytes is the record's canonical DAG-CBOR preimage — the exact bytes recordCid addresses and sig commits to — and is the ONLY trust input: a verifier hashes it to check recordCid, verifies sig over it, and DECODES it for every other field (cid, prev, did, createdAt, tier, writerDid, ...). Those fields are deliberately not sent alongside the bytes, because a field sent twice is a field that can disagree with itself.",
         required: ['recordCid', 'sig', 'unsignedBytes'],
         properties: {
           recordCid: {
