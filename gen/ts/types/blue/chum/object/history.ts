@@ -40,14 +40,15 @@ export function toKnownErr(e: any) {
   return e
 }
 
-/** One mutation record in the history chain. */
+/** One record in the chain, as proof material. unsignedBytes is the record's canonical DAG-CBOR preimage — the exact bytes recordCid addresses and sig commits to — and is the ONLY trust input: a verifier hashes it to check recordCid, verifies sig over it, and DECODES it for every other field (cid, prev, did, timestamp, tier, writerDid, ...). Those fields are deliberately not sent alongside the bytes, because a field sent twice is a field that can disagree with itself. */
 export interface HistoryEntry {
   $type?: 'blue.chum.object.history#historyEntry'
-  cid: string
-  prev?: string
+  /** CIDv1/dag-cbor/sha-256 of unsignedBytes. The verifier recomputes this rather than trusting it. */
   recordCid: string
-  did: string
-  timestamp: string
+  /** Detached signature over unsignedBytes by the record's did. Base64 (RFC 4648 standard alphabet, padded). */
+  sig: string
+  /** The record's canonical DAG-CBOR bytes. Base64 (RFC 4648 standard alphabet, padded). Decode with blue.chum.pointer.record. */
+  unsignedBytes: string
 }
 
 const hashHistoryEntry = 'historyEntry'

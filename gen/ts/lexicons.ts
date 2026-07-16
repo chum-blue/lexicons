@@ -253,7 +253,8 @@ export const schemaDict = {
     defs: {
       main: {
         type: 'query',
-        description: 'Return the full signed mutation chain for a name.',
+        description:
+          'Return the full signed mutation chain for a name, oldest-first, as verifiable proof material rather than as pre-decoded fields.',
         parameters: {
           type: 'params',
           required: ['bucket', 'key'],
@@ -285,23 +286,24 @@ export const schemaDict = {
       },
       historyEntry: {
         type: 'object',
-        description: 'One mutation record in the history chain.',
-        required: ['cid', 'recordCid', 'did', 'timestamp'],
+        description:
+          "One record in the chain, as proof material. unsignedBytes is the record's canonical DAG-CBOR preimage — the exact bytes recordCid addresses and sig commits to — and is the ONLY trust input: a verifier hashes it to check recordCid, verifies sig over it, and DECODES it for every other field (cid, prev, did, timestamp, tier, writerDid, ...). Those fields are deliberately not sent alongside the bytes, because a field sent twice is a field that can disagree with itself.",
+        required: ['recordCid', 'sig', 'unsignedBytes'],
         properties: {
-          cid: {
-            type: 'string',
-          },
-          prev: {
-            type: 'string',
-          },
           recordCid: {
             type: 'string',
+            description:
+              'CIDv1/dag-cbor/sha-256 of unsignedBytes. The verifier recomputes this rather than trusting it.',
           },
-          did: {
+          sig: {
             type: 'string',
+            description:
+              "Detached signature over unsignedBytes by the record's did. Base64 (RFC 4648 standard alphabet, padded).",
           },
-          timestamp: {
+          unsignedBytes: {
             type: 'string',
+            description:
+              "The record's canonical DAG-CBOR bytes. Base64 (RFC 4648 standard alphabet, padded). Decode with blue.chum.pointer.record.",
           },
         },
       },
@@ -363,7 +365,7 @@ export const schemaDict = {
         type: 'record',
         key: 'tid',
         description:
-          "One link in a name's signed mutation chain. The record's canonical DAG-CBOR bytes are addressed by its RecordCID (CIDv1/dag-cbor/sha-256) and signed by the owner's did:key; prev links to the previous record's RecordCID (null at the chain head).",
+          "One link in a name's signed mutation chain. The record's canonical DAG-CBOR bytes are addressed by its RecordCID (CIDv1/dag-cbor/sha-256) and signed by the owner's did:key; prev links to the previous record's RecordCID (null at the chain head). All six of assembled/capCid/intentCid/tier/writerDid/writerSig are OPTIONAL and omitted-when-empty: their absence is what makes a pre-SP-4e record still hash to its original RecordCID. tier, writerDid and writerSig are what a verifier reads to GRADE the chain (ADR-0008), not merely to accept it.",
         record: {
           type: 'object',
           required: [
@@ -393,6 +395,8 @@ export const schemaDict = {
             did: {
               type: 'string',
               format: 'did',
+              description:
+                'The DID that SEQUENCED this write — the operator. See writerDid for the DID that AUTHORISED it.',
             },
             contentType: {
               type: 'string',
@@ -410,6 +414,36 @@ export const schemaDict = {
             createdAt: {
               type: 'string',
               format: 'datetime',
+            },
+            assembled: {
+              type: 'boolean',
+              description:
+                'True when cid addresses a multipart manifest rather than raw bytes. Omitted when false.',
+            },
+            capCid: {
+              type: 'string',
+              description:
+                'CID of the capability that authorised writerDid. Omitted on a legacy record.',
+            },
+            intentCid: {
+              type: 'string',
+              description:
+                "CID of the write intent's canonical bytes. Omitted on a legacy record.",
+            },
+            tier: {
+              type: 'integer',
+              description:
+                "ADR-0008 trust tier, stating WHOSE key signed this record. Tiers count DOWN: 1 (self-custody: did:key/did:web, no operator ever holds the key) is strongest, 2 (registered: did:plc with a user-held rotation key), 3 (legacy: operator-signed). OMITTED on a legacy record — absence MUST be read as Tier 3, not as 0: writing 3 into the bytes would change every pre-SP-4e record's RecordCID. A verifier that compares tiers numerically must map absent -> 3 BEFORE comparing.",
+            },
+            writerDid: {
+              type: 'string',
+              description:
+                'The DID that AUTHORISED this write. Omitted on a legacy record, where did (the operator) is the only signer — which is what tier then reports.',
+            },
+            writerSig: {
+              type: 'bytes',
+              description:
+                "Detached signature by writerDid over the write intent's canonical bytes. Omitted on a legacy record.",
             },
           },
         },
