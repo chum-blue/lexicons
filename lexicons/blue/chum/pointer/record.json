@@ -23,7 +23,7 @@
           "assembled": { "type": "boolean", "description": "True when cid addresses a multipart manifest rather than raw bytes. Omitted when false." },
           "capCid": { "type": "string", "description": "CID of the capability that authorised writerDid. Omitted on a legacy record." },
           "intentCid": { "type": "string", "description": "CID of the write intent's canonical bytes. Omitted on a legacy record." },
-          "tier": { "type": "integer", "description": "ADR-0008 trust tier. Omitted (read as 0 = legacy) when the record carries no writer signature." },
+          "tier": { "type": "integer", "description": "ADR-0008 trust tier, stating WHOSE key signed this record. Tiers count DOWN: 1 (self-custody: did:key/did:web, no operator ever holds the key) is strongest, 2 (registered: did:plc with a user-held rotation key), 3 (legacy: operator-signed). OMITTED on a legacy record — absence MUST be read as Tier 3, not as 0: writing 3 into the bytes would change every pre-SP-4e record's RecordCID. A verifier that compares tiers numerically must map absent -> 3 BEFORE comparing." },
           "writerDid": { "type": "string", "description": "The DID that AUTHORISED this write. Omitted on a legacy record, where did (the operator) is the only signer — which is what tier then reports." },
           "writerSig": { "type": "bytes", "description": "Detached signature by writerDid over the write intent's canonical bytes. Omitted on a legacy record." }
         }
