@@ -5,6 +5,8 @@
 package chumpointer
 
 import (
+	"fmt"
+
 	"github.com/chum-blue/lexicons/gen/go/chumauth"
 	"github.com/fxamacker/cbor/v2"
 	"github.com/ipfs/go-cid"
@@ -38,6 +40,11 @@ type unsignedRecord struct {
 	Assembled   bool      `cbor:"assembled,omitempty"`
 	Tombstone   bool      `cbor:"tombstone"`
 	Visibility  string    `cbor:"visibility"`
+	CapCID      string    `cbor:"capCid,omitempty"`
+	IntentCID   string    `cbor:"intentCid,omitempty"`
+	Tier        uint8     `cbor:"tier,omitempty"`
+	WriterDID   string    `cbor:"writerDid,omitempty"`
+	WriterSig   []byte    `cbor:"writerSig,omitempty"`
 }
 
 // Record holds the logical fields of a blue.chum.pointer.record.
@@ -56,6 +63,15 @@ type Record struct {
 	Assembled   bool
 	Tombstone   bool
 	Visibility  string
+
+	// Writer authorship (SP-4e-1). All absent on a legacy record, which is
+	// exactly what Tier then reports. A verifier reads these to GRADE the
+	// chain (ADR-0008), not merely to accept it.
+	CapCID    string // the capability that authorised WriterDID
+	IntentCID string // content id of the intent's canonical bytes
+	Tier      uint8  // ADR-0008 trust tier; 0 on a legacy record
+	WriterDID string // the DID that AUTHORISED this write
+	WriterSig []byte // detached signature over the intent's canonical bytes
 }
 
 // Marshal encodes r as canonical DAG-CBOR, byte-identical to chum's
@@ -74,8 +90,47 @@ func Marshal(r Record) ([]byte, error) {
 		Assembled:   r.Assembled,
 		Tombstone:   r.Tombstone,
 		Visibility:  r.Visibility,
+		CapCID:      r.CapCID,
+		IntentCID:   r.IntentCID,
+		Tier:        r.Tier,
+		WriterDID:   r.WriterDID,
+		WriterSig:   r.WriterSig,
 	}
 	return DagCBOR.Marshal(u)
+}
+
+// Unmarshal decodes canonical DAG-CBOR record bytes into a Record. It is the
+// inverse of Marshal and mirrors chum's object.DecodeUnsigned.
+//
+// Neither RecordCID nor the detached signature is in these bytes: the CID is the
+// hash OF them and the signature is over them. A caller that needs either gets it
+// from the wire alongside the bytes — and must check it against them.
+func Unmarshal(canonical []byte) (Record, error) {
+	var u unsignedRecord
+	if err := cbor.Unmarshal(canonical, &u); err != nil {
+		return Record{}, err
+	}
+	if u.Type != recordType {
+		return Record{}, fmt.Errorf("chumpointer: unexpected $type %q, want %q", u.Type, recordType)
+	}
+	return Record{
+		Bucket:      u.Bucket,
+		Key:         u.Key,
+		CID:         u.CID,
+		Prev:        u.Prev,
+		DID:         u.DID,
+		ContentType: u.ContentType,
+		CreatedAt:   u.CreatedAt,
+		Size:        u.Size,
+		Assembled:   u.Assembled,
+		Tombstone:   u.Tombstone,
+		Visibility:  u.Visibility,
+		CapCID:      u.CapCID,
+		IntentCID:   u.IntentCID,
+		Tier:        u.Tier,
+		WriterDID:   u.WriterDID,
+		WriterSig:   u.WriterSig,
+	}, nil
 }
 
 // RecordFromCIDStr is a convenience helper: parse cidStr and prevStr into cbor.Tag

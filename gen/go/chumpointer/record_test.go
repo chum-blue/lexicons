@@ -11,9 +11,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/chum-blue/lexicons/gen/go/chumpointer"
+	"github.com/ipfs/go-cid"
 )
 
 type goldenEntry struct {
@@ -69,5 +71,72 @@ func TestGoldenByteIdentity(t *testing.T) {
 		} else {
 			t.Logf("entry %d (%s/%s): OK (%d bytes)", i, e.Bucket, e.Key, len(b))
 		}
+	}
+}
+
+// fullRecord is a record with EVERY field populated — including the five SP-4e
+// writer fields and multipart's assembled. A record with any field left zero
+// cannot detect a drifted omitempty tag, which is the exact bug this guards.
+func fullRecord(t *testing.T) chumpointer.Record {
+	t.Helper()
+	c, err := cid.Decode("bafyreibvjvcv745gig4mkqs5dvpjbdipenxvxxcnvmbnmnkjtqmp5znzzq")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := cid.Decode("bafyreidykglsfhoixmivffc5uwhcgshx4j465xwqntbmu43nb2dzqwfvae")
+	if err != nil {
+		t.Fatal(err)
+	}
+	prev := chumpointer.CIDLink(p)
+	return chumpointer.Record{
+		Bucket:      "b",
+		Key:         "k",
+		CID:         chumpointer.CIDLink(c),
+		Prev:        &prev,
+		DID:         "did:plc:operator",
+		ContentType: "text/plain",
+		CreatedAt:   "2026-07-16T12:00:00.123456789Z",
+		Size:        42,
+		Assembled:   true,
+		Tombstone:   true,
+		Visibility:  "public",
+		CapCID:      "bafyreiccccccccccccccccccccccccccccccccccccccccccccccccccc",
+		IntentCID:   "bafyreiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+		Tier:        1,
+		WriterDID:   "did:key:zWriter",
+		WriterSig:   []byte{0xde, 0xad, 0xbe, 0xef},
+	}
+}
+
+func TestUnmarshalRoundTripsFullRecord(t *testing.T) {
+	want := fullRecord(t)
+	b, err := chumpointer.Marshal(want)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := chumpointer.Unmarshal(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("round-trip mismatch:\n got %+v\nwant %+v", got, want)
+	}
+}
+
+func TestUnmarshalRejectsWrongType(t *testing.T) {
+	b, err := chumpointer.DagCBOR.Marshal(struct {
+		Type string `cbor:"$type"`
+	}{Type: "blue.chum.not.a.pointer"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := chumpointer.Unmarshal(b); err == nil {
+		t.Fatal("want error on wrong $type, got nil")
+	}
+}
+
+func TestUnmarshalRejectsGarbage(t *testing.T) {
+	if _, err := chumpointer.Unmarshal([]byte{0xff, 0xff, 0xff}); err == nil {
+		t.Fatal("want error on garbage, got nil")
 	}
 }
