@@ -23,5 +23,5 @@ test('auth lexicons are present and resolvable', () => {
   for (const p of allLexiconPaths('lexicons/blue/chum')) lex.add(JSON.parse(readFileSync(p, 'utf8')))
   for (const nsid of ['blue.chum.auth.capability','blue.chum.auth.revocation','blue.chum.auth.listCapabilities'])
     expect(lex.getDef(nsid), nsid).toBeDefined()
-  expect(allLexiconPaths('lexicons/blue/chum').length).toBe(10)
+  expect(allLexiconPaths('lexicons/blue/chum').length).toBe(11)
 })
