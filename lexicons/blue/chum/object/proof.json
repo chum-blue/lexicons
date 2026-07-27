@@ -1,0 +1,34 @@
+{
+  "lexicon": 1,
+  "id": "blue.chum.object.proof",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Return an offline-verifiable proof bundle for a name: its full signed mutation chain (oldest-first) plus the current head's trust tier. Proves content, order, and non-alteration offline; authority is NOT included — a verifier that wants to check authorship must be supplied the capability chain separately, because the server never holds it.",
+      "parameters": {
+        "type": "params",
+        "required": ["bucket", "key"],
+        "properties": {
+          "bucket": { "type": "string" },
+          "key": { "type": "string" }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["bucket", "key", "headTier", "records"],
+          "properties": {
+            "bucket": { "type": "string" },
+            "key": { "type": "string" },
+            "headTier": { "type": "integer", "description": "ADR-0008 trust tier of the current head record (0 = legacy/operator-signed, 1 = self-custody). Informational; the verifier re-derives per-record tier by decoding unsignedBytes." },
+            "records": {
+              "type": "array",
+              "items": { "type": "ref", "ref": "blue.chum.object.history#historyEntry" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
